@@ -1,0 +1,72 @@
+"@startuml state_diagram"
+
+[*] -> Init
+
+state Init {
+ init_run: set functional parameters
+ init_run: check hardware interfaces
+ init_run: enable ISR/callbacks
+ init_run: turn off all GPIO and PWM LEDs (except heartbeat)
+ init_run: suspend error and heart rate calculation threads
+
+}
+
+state Idle {
+Idle_entry: turn off all LEDs (except heartbeat)
+Idle_entry: enable CB/ISR for all buttons
+Idle_entry: perform initial battery measurement
+Idle_entry: start battery measurement event timer
+Idle_run: wait for button press event
+Idle_run: on battery measurement event timer expiry, measure battery and notify via BLE every minute
+Idle_exit: stop battery measurement event timer
+Temperature_event: on temperature button press, measure temperature and notify via BLE
+Idle_entry --> Idle_run
+Idle_run --> Idle_exit
+}
+
+state HeartRate {
+Heartrate_entry: turn off battery LED
+Heartrate_entry: enable CB/ISR for all buttons
+Heartrate_entry: begain ECG timer for data capture
+Heartrate_entry: resume heart rate thread (running at 25% duty cycle)
+Heartrate_run: taking ADC async reads using callback function and storing in buffer (when full triggers BUFFER_FULL_EVENT)
+Heartrate_run: callback function converts values to millivolts 
+Heartrate_run: calculates heart rate based on how many beats every 4 seconds (buffer is overwritten)
+Heartrate_run: wait for button press event
+Heartrate_exit: stop ECG timer
+Heartrate_exit: suspend heart rate thread
+Temperature_button_event: on temperature button press, measure temperature and notify via BLE
+Heartrate_entry --> Heartrate_run
+Heartrate_run --> Heartrate_exit
+}
+
+state Error {
+Error_entry: suspend heartbeat thread
+Error_entry: disable CB/ISR for all buttons except reset button
+Error_entry: turn off all LEDs
+Error_run: resume error LED thread (all LEDs blinking in phase at a 50% duty cycle)
+Error_run: wait for reset button press event
+Error_exit: stop error LED thread
+Error_exit: setting error code to 0
+Error_entry --> Error_run
+Error_run --> Error_exit
+}
+
+state Always_Running {
+Always_running: Thread for Heartbeat at 25% duty cycle (1Hz) (except in Error state)
+Always_running: Thread watching for errors and posting error events and sending notification via BLE
+}
+
+Init --> Idle: Init success
+Idle --> HeartRate : ECG button pressed
+Idle --> Idle: Reset button pressed (all variables reset)
+Idle --> Idle: Idle return button pressed
+Idle --> Error: error event detected
+HeartRate --> Idle: Idle return button pressed
+HeartRate --> Idle: Reset button pressed (all variables reset)
+HeartRate --> Error: error event detected
+Error --> Idle: Reset button pressed (all variables reset)
+Init --> Error: error event detected
+
+
+@enduml
