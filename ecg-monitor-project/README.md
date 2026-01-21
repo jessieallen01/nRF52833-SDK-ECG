@@ -12,11 +12,11 @@ Using the nRF52833 SDK, this project integrates fundamental embedded systems con
 * `application/CMakePresets.json` - CMake presets file (build configuration)
 * `application/CMakeLists.txt` - build system configuration file
 * `application/prj.conf` - Zephyr configuration file
-* `testing/final_technical_report.ipynb` - Final written report for the project
+* `testing/final_technical_report.ipynb` - Final written Jupyter report for the project
 * `.gitlab-ci.yml` - GitLab CI configuration file
 * `.gitignore` - ignore files that are not needed in the git repository
 * `.west.yml` - Zephyr west configuration file
-* `testing/technical_report.ipynb` - Jupyter notebook for the technical report
+
 
 ## Key Features
 
