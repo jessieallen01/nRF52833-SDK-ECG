@@ -2,68 +2,35 @@
 
 # Duke BME 554: ECG, Temperature, and BLE Device Labs
 
-The CI build badge above indicates the status of the main branch of the repository. A green badge means that the latest commit has passed all tests, while a red badge indicates that there are failing tests.
+This repository is associated with BME 554 and is solely for educational purposes.
 
-## Project Repository Overview
+Using the nRF52833 SDK, this project integrates fundamental embedded systems concepts including PWM, ADC, I2C communication, and Bluetooth to create a comprehensive ECG-like monitoring device. Various coding structures in C were employed, including threads, timers, ADC (analog-to-digital conversion), and PWM (pulse width modulation).
+
+## Project Repository Overview/Navigation
 
 * `application/src/main.c` - main application code
 * `application/CMakePresets.json` - CMake presets file (build configuration)
 * `application/CMakeLists.txt` - build system configuration file
 * `application/prj.conf` - Zephyr configuration file
+* `testing/final_technical_report.ipynb` - Final written report for the project
 * `.gitlab-ci.yml` - GitLab CI configuration file
 * `.gitignore` - ignore files that are not needed in the git repository
 * `.west.yml` - Zephyr west configuration file
 * `testing/technical_report.ipynb` - Jupyter notebook for the technical report
 
-## Getting Started
+## Key Features
 
-You will need to run `west update` to download the Zephyr SDK and other
-dependencies before building the project. This will also create a local Zephyr
-workspace in the `external/` directory, which will take a while to download, but
-only needs to be done once.
+ECG Heart Rate Monitoring: The device processes live ECG signals ranging from 40–200 bpm, synchronizing an LED to blink at the corresponding heart rate frequency while calculating real-time BPM values. A single-buffer technique was implemented where ADC values continuously overwrite the buffer via callback function, enabling real-time signal processing without excessive overhead. Heart rate is determined by counting signal cycles within a 4-second window, triggered when the ECG signal crosses a 300mV threshold during the R wave ascent (the ECG signal was formed via a waveform generator and ranged from -500mV to 500mV). This threshold placement minimizes noise interference by avoiding both the signal extrema and baseline crossing regions where other ECG waves reside.
 
-## Zephyr Devicetree, GPIO & Callbacks
 
-First Lab to explore Zephyr's Devicetree, GPIO, and Interrupt Service Routines (ISRs).
+Battery Level Measurement: A PWM-based battery monitoring system was implemented using a linear mapping that converts 0–3V input into 0–100% duty cycle output​. The duty cycle corresponds directly to battery percentage, where 0% duty cycle indicates 0% battery and 100% duty cycle indicates 100% battery. Accuracy was validated through multi-method testing using a DC power supply connected to the AIN0 channel, with measurements verified via logging statements, Bluetooth outputs, and oscilloscope readings (see repository for verification report).
 
-[https://mlp6.github.io/Embedded-Medical-Devices/labs/zephyr-gpio-isr-callbacks-lab.html](https://mlp6.github.io/Embedded-Medical-Devices/labs/zephyr-gpio-isr-callbacks-lab.html)
 
-## Timers
+Temperature Sensing: An MCP9808 temperature sensor was integrated via I2C communication to provide on-demand temperature readings triggered by button press. The I2C protocol enables reliable digital communication between the nRF board and the temperature sensor.
 
-This lab introduces Zephyr's timer APIs, which are essential for implementing time-based functionality in embedded applications.
 
-[https://mlp6.github.io/Embedded-Medical-Devices/labs/zephyr-timers-lab.html](https://mlp6.github.io/Embedded-Medical-Devices/labs/zephyr-timers-lab.html)
+BLE Data Transmission: Bluetooth functionality was implemented to wirelessly transmit battery voltage, temperature readings, and heart rate data to external devices, enabling real-time remote monitoring of all sensor outputs.
 
-## Kernel Events & Threads
+​​
+The project demonstrates the integration of multiple embedded systems concepts, with each sub-function validated for accuracy through testing procedures including statistical analysis (mean, standard deviation, 95% confidence intervals) and comparison against different data measurement methods.
 
-This lab explores Zephyr's threading model and event handling, which are crucial for managing concurrent tasks in embedded systems.
-
-[https://mlp6.github.io/Embedded-Medical-Devices/labs/zephyr-threads-events-lab.html](https://mlp6.github.io/Embedded-Medical-Devices/labs/zephyr-threads-events-lab.html)
-
-## State Machine Framework
-
-This lab introduces the State Machine Framework (SMF) in Zephyr, which is used to manage complex state transitions in embedded applications.
-
-[https://mlp6.github.io/Embedded-Medical-Devices/labs/zephyr-smf-lab.html](https://mlp6.github.io/Embedded-Medical-Devices/labs/zephyr-smf-lab.html)
-
-## Analog to Digital Conversion (ADC)
-
-This lab covers the use of ADC in Zephyr, which is essential for reading analog signals from sensors, including ECG electrodes.
-
-[https://mlp6.github.io/Embedded-Medical-Devices/labs/zephyr-adc-lab.html](https://mlp6.github.io/Embedded-Medical-Devices/labs/zephyr-adc-lab.html)
-
-## Pulse Width Modulation (PWM)
-
-This lab covers the use of PWM in Zephyr, which is essential for controlling the brightness of LEDs and the speed of motors.
-
-[https://mlp6.github.io/Embedded-Medical-Devices/labs/zephyr-pwm-lab.html](https://mlp6.github.io/Embedded-Medical-Devices/labs/zephyr-pwm-lab.html)
-
-## Serial Communication (I2C/Sensors)
-
-This lab introduces the use of I2C for communication with sensors, which is a common protocol in embedded systems.  We will use this to read temperature data from a sensor.
-
-## Bluetooth Low Energy (BLE)
-
-This lab covers the basics of Bluetooth Low Energy (BLE) communication, which is essential for wireless data transfer in embedded medical devices.
-
-[https://mlp6.github.io/Embedded-Medical-Devices/labs/ecg-temp-ble-lab.html](https://mlp6.github.io/Embedded-Medical-Devices/labs/ecg-temp-ble-lab.html)
